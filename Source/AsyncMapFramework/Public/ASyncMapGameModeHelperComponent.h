@@ -4,37 +4,33 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "ASyncMapHelperComponent.generated.h"
+#include "Interface/AsyncGameModeComponentInterface.h"
+#include "ASyncMapGameModeHelperComponent.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class ASYNCMAPFRAMEWORK_API UASyncMapHelperComponent : public UActorComponent
+class ASYNCMAPFRAMEWORK_API UASyncMapGameModeHelperComponent : public UActorComponent, public IAsyncGameModeInterface
 {
 	GENERATED_BODY()
+
+private:
+	ULevelStreaming* CurrentLevel;
+	ULevelStreaming* LoadingLevel;
+	FName CurrentLevelName;
+	TObjectPtr<APlayerController> PlayerController;
 
 public:	
 	// Sets default values for this component's properties
 	UASyncMapHelperComponent();
-
-	ULevelStreaming* CurrentLevel;
-
-	ULevelStreaming* LoadingLevel;
 
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Default")
 	TObjectPtr<USceneComponent> DefaultSceneRoot;
 
 	/** Please add a variable description */
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default", meta=(MultiLine="true"))
-	FName CurrentLevelName;
-
-	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Default", meta=(MultiLine="true"))
 	bool DebugUI;
 
-	/** Please add a variable description */
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default", meta=(MultiLine="true"))
-	TObjectPtr<ABP_PlayerController_C> PlayerController;
 
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default", meta=(MultiLine="true", UIMin="", UIMax="2", ClampMin="", ClampMax=""))
@@ -54,9 +50,13 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void LoadMap(FName LevelName, ELoadingMode loadingMode, bool IgnoreFade);
+	virtual void LoadMap_Implementation(FName LevelName, ELoadingMode loadingMode, bool IgnoreFade) override;
+
 
 	UFUNCTION(BlueprintCallable)
 	void RemoveLoadingMap(bool LazyLoad, ELoadingMode loadingMode, bool IgnoreFade);
+	void RemoveLoadingMap_Implementation(bool LazyLoad, ELoadingMode loadingMode, bool IgnoreFade);
+
 
 	UFUNCTION(BlueprintCallable)
 	void CheckPointSaveData(FName LastLoadedMap);
@@ -69,7 +69,7 @@ public:
 
 	/** Please add a function description */
 	UFUNCTION(BlueprintPure)
-	bool IsCorrectThePawnMode(ABP_PlayerController_C* self2, TEnumAsByte<ELoadingMode> NewParam, FName NewParam1);
+	bool IsCorrectThePawnMode(APlayerController* self2, TEnumAsByte<ELoadingMode> NewParam, FName NewParam1);
 
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable)

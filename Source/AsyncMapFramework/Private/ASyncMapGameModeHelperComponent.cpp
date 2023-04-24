@@ -2,7 +2,10 @@
 
 
 #include "Kismet/GameplayStatics.h"
-#include "ASyncMapHelperComponent.h"
+#include "Interface/AsyncPlayerControllerInterface.h"
+#include "Interface/MapInterface.h"
+#include "Interface/ASyncPlayerControllerInterface.h"
+#include "ASyncMapGameModeHelperComponent.h"
 
 // Sets default values for this component's properties
 UASyncMapHelperComponent::UASyncMapHelperComponent()
@@ -24,33 +27,36 @@ void UASyncMapHelperComponent::BeginPlay()
 
 }
 
+// Uhhh, We are making a Component... Maybe We could bind this function to the event in the *ACTUAL* PlayerController
 void UASyncMapHelperComponent::OnSwapPlayerControllers(APlayerController * oldPlayer, APlayerController * newPlayer)
 {
 	PlayerController = newPlayer;
 
 }
 
-void UASyncMapHelperComponent::LoadMap(FName LevelName, ELoadingMode loadingMode, bool IgnoreFade)
+void UASyncMapHelperComponent::LoadMap_Implementation(FName LevelName, ELoadingMode loadingMode, bool IgnoreFade)
 {
 	if(!IgnoreFade){StartCameraFade();}
 	auto nextToLoadMap = GetStreamingLevel(LevelName);
 	LoadingLevel->LevelTransform = nextToLoadMap->LevelTransform;
 	GameplayStatics::LoadStreamLevel(GetParent(), LoadingLevel, true, false);
 	// (Macro) IsFaded();
-	// PlayerController-> (Interface) TeleportToPlayerStart("Loading");
-	// LoadingLevel-> (Interface) SetPrologueMode(loadingMode);
+	IAsyncPlayerControllerInterface::Execute_TeleportToPlayerStart(PlayerController,"Loading");
+	IMapInterface::Execute_SetPrologueMode(LoadingLevel,LoadingMode);
 	GameplayStatics::UnloadStreamLevel(GetParent(), CurrentLevelName);
 	// (Macro) RemoveCameraFade()
-	// nextToLoadMap-> (Interface) SetPrologueMode(loadingMode);
+	IMapInterface::Execute_SetPrologueMode(nextToLoadMap,LoadingMode);
+
 	CurrentLevelName = LevelName;
 	if (loadingMode != ELoadingMode::Prologue)
 	{
 		RemoveLoadingLevel(CurrentLevelName,loadingMode,false); return;
-	}	 
-	// LoadingLevel-> (Interface) SetLoadingWidgetLevel(false);
+	};
+
+	IMapInterface::Execute_SetLoadingWidgetLevel(LoadingLevel,false);
 }
 
-void UASyncMapHelperComponent::RemoveLoadingLevel(bool LazyLoad, ELoadingMode loadingMode, bool IgnoreFade)
+void UASyncMapHelperComponent::RemoveLoadingLevel_Implementation(bool LazyLoad, ELoadingMode loadingMode, bool IgnoreFade)
 {
 	if(!IgnoreFade){StartCameraFade();}
 	if(LazyLoad && !CurrentLevel->IsVisible())
@@ -66,11 +72,29 @@ void UASyncMapHelperComponent::RemoveLoadingLevel(bool LazyLoad, ELoadingMode lo
 
 	if (IsCorrectThePawnMode(PlayerController,loadingMode,CurrentLevelName))
 	{
-
+		// ReSpawn(bool bMenuPawn)
 	}
+
+	if(loadingMode == ELoadingMode::CustomLocation)
+	{
+		IASyncPlayerControllerInterface::Execute_TeleportToLastTransform(PlayerController /*,... ?*/);
+	}
+	else
+	{
+		IASyncPlayerControllerInterface::Execute_TeleportToPlayerStart(PlayerController,CurrentLevelName);
+		// PlayerController (Interface)->SaveData(); 
+		IASyncPlayerControllerInterface::Execute_SaveData(PlayerController/*,... ?*/);
+	}
+
+	if(!IgnoreFade)
+	{
+		// (Macro) Remove CameraFade
+	}
+
+	return;
 }
 
-bool UASyncMapHelperComponent::IsCorrectThePawnMode(ABP_PlayerController_C *playerController, TEnumAsByte<ELoadingMode> NewParam, FName LevelName)
+bool UASyncMapHelperComponent::IsCorrectThePawnMode(APlayerController *playerController, TEnumAsByte<ELoadingMode> NewParam, FName LevelName)
 {
     return (playerController->GetIsPlayerPawn() && LevelName == "MainMenu") || LevelName == "Loading";
 }
