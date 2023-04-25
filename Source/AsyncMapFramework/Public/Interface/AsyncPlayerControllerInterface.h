@@ -1,4 +1,4 @@
-// Gabriel Bustillo del Cuvillo
+// Copyright 2023 Gabriel Bustillo del Cuvillo
 
 #pragma once
 
