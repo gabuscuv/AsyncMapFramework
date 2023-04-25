@@ -2,13 +2,16 @@
 
 #pragma once
 
+enum class ELoadingMode : uint8;
+
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+// #include "Enums/LoadingMode.h"
 #include "AsyncGameModeComponentInterface.generated.h"
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
-class ASYNCMAPFRAMEWORK_API UAsyncGameModeComponentInterface : public UInterface
+class UAsyncGameModeComponentInterface : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -25,9 +28,9 @@ class ASYNCMAPFRAMEWORK_API IAsyncGameModeComponentInterface
 public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AsyncMapHelper")
-	void LoadMap();
+	void LoadMap(FName LevelName, ELoadingMode loadingMode, bool IgnoreFade);
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AsyncMapHelper")
     bool LoadSaveData();
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AsyncMapHelper")
-	void RemoveLoadingMap(FName LevelName);
+	void RemoveLoadingMap(bool LazyLoad, ELoadingMode loadingMode, bool IgnoreFade);
 };

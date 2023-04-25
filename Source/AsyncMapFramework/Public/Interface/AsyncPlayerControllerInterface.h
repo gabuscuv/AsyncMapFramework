@@ -8,7 +8,7 @@
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
-class ASYNCMAPFRAMEWORK_API  UAsyncPlayerControllerInterface : public UInterface
+class UAsyncPlayerControllerInterface : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -25,7 +25,10 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AsyncMapHelper")
 	void TeleportToPlayerStart(FName LevelName);
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AsyncMapHelper")
-	void TeleportToLastTransform(FVector x);
-    UFUNCTION(BlueprintPure, Category = "AsyncMapHelper")
+	void TeleportToLastTransform();
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AsyncMapHelper")
     bool IsMenuPawn();
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AsyncMapHelper")
+    void SaveData();
+
 };
