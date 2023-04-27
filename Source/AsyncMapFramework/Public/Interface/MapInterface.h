@@ -24,7 +24,7 @@ class ASYNCMAPFRAMEWORK_API IMapInterface
 public:
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AsyncMapHelper")
-	void SetPrologueMode(ELoadingMode True);
+	void SetPrologueMode(ELoadingMode LoadingMode);
 
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AsyncMapHelper")
