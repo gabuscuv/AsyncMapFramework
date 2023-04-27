@@ -14,7 +14,7 @@ class UAsyncPlayerControllerInterface : public UInterface
 };
 
 /**
- * 
+ *
  */
 class ASYNCMAPFRAMEWORK_API IAsyncPlayerControllerInterface
 {
@@ -26,9 +26,10 @@ public:
 	void TeleportToPlayerStart(FName LevelName);
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AsyncMapHelper")
 	void TeleportToLastTransform();
-    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AsyncMapHelper")
-    bool IsMenuPawn();
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AsyncMapHelper")
-    void SaveData();
-
+	bool IsMenuPawn();
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AsyncMapHelper")
+	bool ReSpawn(bool MenuPawn);
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AsyncMapHelper")
+	void SaveData();
 };
