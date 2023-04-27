@@ -31,5 +31,5 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AsyncMapHelper")
 	bool ReSpawn(bool MenuPawn);
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AsyncMapHelper")
-	void SaveData();
+	void SaveData(FName LastLoadedMap, ELoadingMode LoadingMode);
 };

@@ -19,7 +19,6 @@ private:
 	TObjectPtr<ULevelStreaming> CurrentLevel;
 	TObjectPtr<ULevelStreaming> LoadingLevel;
 	FName CurrentLevelName;
-	TObjectPtr<APlayerController> PlayerController;
 	FTimerHandle LoadingLevelTimerHandle;
 	FTimerDelegate LoadingLevelDelegate;
 	FTimerHandle FadingTimerHandle;
@@ -37,6 +36,10 @@ public:
 	float FadeDuration = 0.1f;
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Default")
 	float HeldTimerDuration;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Default")
+	TObjectPtr<APlayerController> PlayerController;
+
 
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Default")
@@ -65,7 +68,8 @@ public:
 	/** Please add a function description */
 	//	UFUNCTION(BlueprintCallable)
 	//	void LoadFMODSettings();
-
+	
+	UFUNCTION(BlueprintCallable, Category = "AsyncMapHelper")
 	void OnSwapPlayerControllers(APlayerController *oldPlayer, APlayerController *newPlayer);
 
 private:
@@ -78,6 +82,10 @@ private:
 	void LoadMap_Implementation_TimeElapsed(FName levelName, ELoadingMode loadingMode, bool IgnoreFade);
 
 	FDateTime GetTimeFadding();
+
+	UObject* GetLevelScriptBlueprint(FName LevelName);
+	UObject* GetLevelScriptBlueprint(TObjectPtr<ULevelStreaming> LevelName);
+
 
 protected:
 	// Called when the game starts
