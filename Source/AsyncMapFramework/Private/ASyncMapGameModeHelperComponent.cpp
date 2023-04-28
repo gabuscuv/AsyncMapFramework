@@ -27,7 +27,7 @@ UASyncMapGameModeHelperComponent::UASyncMapGameModeHelperComponent()
 void UASyncMapGameModeHelperComponent::BeginPlay()
 {
 	LoadingLevel = UGameplayStatics::GetStreamingLevel(GetOwner(), LoadingLevelName);
-//	LoadingLevel->OnLevelLoaded.AddDynamic(this, &UASyncMapGameModeHelperComponent::LoadingMapLoaded);
+	//	LoadingLevel->OnLevelLoaded.AddDynamic(this, &UASyncMapGameModeHelperComponent::LoadingMapLoaded);
 
 	Super::BeginPlay();
 }
@@ -40,10 +40,20 @@ void UASyncMapGameModeHelperComponent::OnSwapPlayerControllers(APlayerController
 
 void UASyncMapGameModeHelperComponent::LoadMap_Implementation(FName levelName, ELoadingMode loadingMode, bool IgnoreFade)
 {
+#ifdef WITH_EDITOR
+	if (!(PlayerController->Implements<UAsyncPlayerControllerInterface>() ||
+		  GetLevelScriptBlueprint(LoadingLevel)->Implements<UMapInterface>()))
+	{
+		UE_LOG(LogTemp, Error, TEXT("[%f][%s][%s]: PlayerController and/or Loading Map REQUIRES have their respective interfaces, Check their classes"),
+			   GetWorld()->TimeSeconds, *GetName(), *FString(__PRETTY_FUNCTION__), *levelName.ToString(), *MapToLoadInformation.levelName.ToString());
+	return;
+	}
+#endif
+
 	if (isLoading)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[%f][%s][%s]: It was requested load a Map while It was loading other\nAttempt To Load: %s\tLoading: %s"),
-		GetWorld()->TimeSeconds, *GetName(), *FString(__PRETTY_FUNCTION__), *levelName.ToString(), *MapToLoadInformation.levelName.ToString());
+			   GetWorld()->TimeSeconds, *GetName(), *FString(__PRETTY_FUNCTION__), *levelName.ToString(), *MapToLoadInformation.levelName.ToString());
 
 		return;
 	}
@@ -57,8 +67,8 @@ void UASyncMapGameModeHelperComponent::LoadMap_Implementation(FName levelName, E
 	LoadingLevel->LevelTransform = UGameplayStatics::GetStreamingLevel(GetOwner(), levelName)->LevelTransform;
 
 	MapToLoadInformation = FMapRequestInformation(levelName, loadingMode, IgnoreFade);
-	UGameplayStatics::LoadStreamLevel(GetOwner(), LoadingLevelName, true, false, 
-	FLatentActionInfo(0 /*No Idea*/, FCString::Atoi(*FGuid::NewGuid().ToString(EGuidFormats::Digits)), *FString("LoadingMapLoaded"), this));
+	UGameplayStatics::LoadStreamLevel(GetOwner(), LoadingLevelName, true, false,
+									  FLatentActionInfo(0 /*No Idea*/, FCString::Atoi(*FGuid::NewGuid().ToString(EGuidFormats::Digits)), *FString("LoadingMapLoaded"), this));
 }
 
 void UASyncMapGameModeHelperComponent::LoadMap_Implementation_TimeElapsed()
@@ -71,13 +81,13 @@ void UASyncMapGameModeHelperComponent::LoadMap_Implementation_TimeElapsed()
 		GetOwner()->GetWorldTimerManager().SetTimer(FadingTimerHandle, LoadingLevelDelegate, HeldTimerDuration, false);
 		return;
 	}
-	
+
 	if (!(CurrentLevelName == FName("None") || CurrentLevelName == LoadingLevelName))
 	{
 		UGameplayStatics::UnloadStreamLevel(GetOwner(), CurrentLevelName, FLatentActionInfo(), false);
 	}
-	
-	UGameplayStatics::LoadStreamLevel(GetOwner(), MapToLoadInformation.levelName, true, false, FLatentActionInfo(0 /*No Idea*/, FCString::Atoi(*FGuid::NewGuid().ToString(EGuidFormats::Digits)), *FString("NextMapLoaded"), this));
+
+	UGameplayStatics::LoadStreamLevel(GetOwner(), MapToLoadInformation.levelName, ! (MapToLoadInformation.loadingMode == ELoadingMode::Prologue), false, FLatentActionInfo(0 /*No Idea*/, FCString::Atoi(*FGuid::NewGuid().ToString(EGuidFormats::Digits)), *FString("NextMapLoaded"), this));
 
 	StopCameraFade();
 }
@@ -100,8 +110,9 @@ void UASyncMapGameModeHelperComponent::NextMapLoaded()
 	};
 
 	CurrentLevelName = MapToLoadInformation.levelName;
+	CurrentLevel = UGameplayStatics::GetStreamingLevel(GetOwner(), CurrentLevelName);
 
-	RemoveLoadingMap_Implementation(false /*??*/, MapToLoadInformation.loadingMode, false);
+	RemoveLoadingMap_Implementation(false /*??*/, MapToLoadInformation.loadingMode, MapToLoadInformation.IgnoreFade);
 }
 
 void UASyncMapGameModeHelperComponent::RemoveLoadingMap_Implementation(bool lazyLoad, ELoadingMode loadingMode, bool ignoreFade)
@@ -113,7 +124,6 @@ void UASyncMapGameModeHelperComponent::RemoveLoadingMap_Implementation(bool lazy
 
 	if (lazyLoad && !CurrentLevel->IsLevelVisible())
 	{
-		CurrentLevel = UGameplayStatics::GetStreamingLevel(GetOwner(), CurrentLevelName);
 		CurrentLevel->SetShouldBeVisible(true);
 		LoadingLevelDelegate = FTimerDelegate::CreateUObject(this, &UASyncMapGameModeHelperComponent::RemoveLoadingMap_Implementation, lazyLoad, loadingMode, ignoreFade);
 		GetOwner()->GetWorldTimerManager().SetTimer(LoadingLevelTimerHandle, LoadingLevelDelegate, HeldTimerDuration, false);
@@ -125,7 +135,7 @@ void UASyncMapGameModeHelperComponent::RemoveLoadingMap_Implementation(bool lazy
 		IMapInterface::Execute_SetPrologueMode(GetLevelScriptBlueprint(CurrentLevelName), MapToLoadInformation.loadingMode);
 	}
 
-	UGameplayStatics::UnloadStreamLevel(GetOwner(), CurrentLevelName, FLatentActionInfo(), false);
+	UGameplayStatics::UnloadStreamLevel(GetOwner(), LoadingLevelName, FLatentActionInfo(), false);
 
 	if (IsCorrectThePawnMode(PlayerController, loadingMode, CurrentLevelName))
 	{
