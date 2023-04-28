@@ -7,6 +7,7 @@
 #include "Interface/AsyncGameModeComponentInterface.h"
 #include "Misc/DateTime.h"
 #include "Math/Color.h"
+#include "Struct/MapRequestInformation.h"
 #include "ASyncMapGameModeHelperComponent.generated.h"
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
@@ -15,10 +16,10 @@ class ASYNCMAPFRAMEWORK_API UASyncMapGameModeHelperComponent : public UActorComp
 	GENERATED_BODY()
 
 private:
-	FName LoadingLevelName = "Loading";
 	TObjectPtr<ULevelStreaming> CurrentLevel;
 	TObjectPtr<ULevelStreaming> LoadingLevel;
 	FName CurrentLevelName;
+	FMapRequestInformation MapToLoadInformation;
 	FTimerHandle LoadingLevelTimerHandle;
 	FTimerDelegate LoadingLevelDelegate;
 	FTimerHandle FadingTimerHandle;
@@ -30,6 +31,9 @@ public:
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Default")
 	bool DebugUI;
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Default")
+	FName LoadingLevelName = "Loading";
 
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Default", meta = (UIMin = "0", UIMax = "2", ClampMin = "0", ClampMax = "2"))
@@ -79,9 +83,14 @@ private:
 
 	void StopCameraFade();
 
-	void LoadMap_Implementation_TimeElapsed(FName levelName, ELoadingMode loadingMode, bool IgnoreFade);
+	void LoadMap_Implementation_TimeElapsed();
 
 	FDateTime GetTimeFadding();
+	
+	UFUNCTION()
+	void LoadingMapLoaded();
+	UFUNCTION()
+	void NextMapLoaded();
 
 	UObject* GetLevelScriptBlueprint(FName LevelName);
 	UObject* GetLevelScriptBlueprint(TObjectPtr<ULevelStreaming> LevelName);
