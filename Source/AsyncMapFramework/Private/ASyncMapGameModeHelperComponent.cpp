@@ -2,6 +2,8 @@
 
 #include "ASyncMapGameModeHelperComponent.h"
 
+#include "CompatibilityLayer/Macros.h"
+
 #include "TimerManager.h"
 #include "Misc/Guid.h"
 #include "Kismet/GameplayStatics.h"
@@ -25,7 +27,7 @@ UASyncMapGameModeHelperComponent::UASyncMapGameModeHelperComponent()
 void UASyncMapGameModeHelperComponent::BeginPlay()
 {
 	LoadingLevel = UGameplayStatics::GetStreamingLevel(GetOwner(), LoadingLevelName);
-	LoadingLevel->OnLevelLoaded.AddDynamic(this, &UASyncMapGameModeHelperComponent::LoadingMapLoaded);
+//	LoadingLevel->OnLevelLoaded.AddDynamic(this, &UASyncMapGameModeHelperComponent::LoadingMapLoaded);
 
 	Super::BeginPlay();
 }
@@ -38,20 +40,29 @@ void UASyncMapGameModeHelperComponent::OnSwapPlayerControllers(APlayerController
 
 void UASyncMapGameModeHelperComponent::LoadMap_Implementation(FName levelName, ELoadingMode loadingMode, bool IgnoreFade)
 {
+	if (isLoading)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[%f][%s][%s]: It was requested load a Map while It was loading other\nAttempt To Load: %s\tLoading: %s"),
+		GetWorld()->TimeSeconds, *GetName(), *FString(__PRETTY_FUNCTION__), *levelName.ToString(), *MapToLoadInformation.levelName.ToString());
+
+		return;
+	}
 	if (!IgnoreFade)
 	{
 		StartCameraFade();
 	}
+
+	isLoading = true;
 	// Starts Loading the Loading Map
 	LoadingLevel->LevelTransform = UGameplayStatics::GetStreamingLevel(GetOwner(), levelName)->LevelTransform;
 
 	MapToLoadInformation = FMapRequestInformation(levelName, loadingMode, IgnoreFade);
-	UGameplayStatics::LoadStreamLevel(GetOwner(), LoadingLevelName, true, false, FLatentActionInfo());
+	UGameplayStatics::LoadStreamLevel(GetOwner(), LoadingLevelName, true, false, 
+	FLatentActionInfo(0 /*No Idea*/, FCString::Atoi(*FGuid::NewGuid().ToString(EGuidFormats::Digits)), *FString("LoadingMapLoaded"), this));
 }
 
 void UASyncMapGameModeHelperComponent::LoadMap_Implementation_TimeElapsed()
 {
-		UE_LOG(LogTemp,Warning,TEXT("HELLO2"));
 
 	// Checking If Fadding Animation is ended
 	if (PlayerController == nullptr || (!MapToLoadInformation.IgnoreFade && TimeToFadding < FDateTime::Now()))
@@ -60,17 +71,19 @@ void UASyncMapGameModeHelperComponent::LoadMap_Implementation_TimeElapsed()
 		GetOwner()->GetWorldTimerManager().SetTimer(FadingTimerHandle, LoadingLevelDelegate, HeldTimerDuration, false);
 		return;
 	}
-
-	UGameplayStatics::UnloadStreamLevel(GetOwner(), CurrentLevelName, FLatentActionInfo(), false);
-	UGameplayStatics::LoadStreamLevel(GetOwner(), MapToLoadInformation.levelName, true, false,
-									  FLatentActionInfo(0 /*No Idea*/, FCString::Atoi(*FGuid::NewGuid().ToString(EGuidFormats::Digits)), *FString("NextMapLoaded"), this));
+	
+	if (!(CurrentLevelName == FName("None") || CurrentLevelName == LoadingLevelName))
+	{
+		UGameplayStatics::UnloadStreamLevel(GetOwner(), CurrentLevelName, FLatentActionInfo(), false);
+	}
+	
+	UGameplayStatics::LoadStreamLevel(GetOwner(), MapToLoadInformation.levelName, true, false, FLatentActionInfo(0 /*No Idea*/, FCString::Atoi(*FGuid::NewGuid().ToString(EGuidFormats::Digits)), *FString("NextMapLoaded"), this));
 
 	StopCameraFade();
 }
 
 void UASyncMapGameModeHelperComponent::LoadingMapLoaded()
 {
-	UE_LOG(LogTemp,Warning,TEXT("HELLO"));
 	// Teleport the Player
 	IAsyncPlayerControllerInterface::Execute_TeleportToPlayerStart(PlayerController, LoadingLevelName);
 	StopCameraFade();
@@ -133,7 +146,7 @@ void UASyncMapGameModeHelperComponent::RemoveLoadingMap_Implementation(bool lazy
 	{
 		StopCameraFade();
 	}
-
+	isLoading = false;
 	return;
 }
 

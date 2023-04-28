@@ -24,6 +24,8 @@ private:
 	FTimerDelegate LoadingLevelDelegate;
 	FTimerHandle FadingTimerHandle;
 
+	bool isLoading = false;
+
 public:
 	// Sets default values for this component's properties
 	UASyncMapGameModeHelperComponent();
