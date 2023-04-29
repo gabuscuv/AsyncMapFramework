@@ -4,10 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Interface/AsyncGameModeComponentInterface.h"
 #include "Misc/DateTime.h"
 #include "Math/Color.h"
+
+#include "CompatibilityLayer/CompatibilityVersion.h"
+
+#include "Interface/AsyncGameModeComponentInterface.h"
 #include "Struct/MapRequestInformation.h"
+
 #include "ASyncMapGameModeHelperComponent.generated.h"
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
@@ -16,8 +20,16 @@ class ASYNCMAPFRAMEWORK_API UASyncMapGameModeHelperComponent : public UActorComp
 	GENERATED_BODY()
 
 private:
-	TObjectPtr<ULevelStreaming> CurrentLevel;
-	TObjectPtr<ULevelStreaming> LoadingLevel;
+
+//#if ENGINE_COMPATIBILITY_NOOBJECTPTR
+	APlayerController* PlayerController;
+	ULevelStreaming* CurrentLevel;
+	ULevelStreaming* LoadingLevel;
+//else
+//	TObjectPtr<APlayerController> PlayerController;
+//	TObjectPtr<ULevelStreaming> CurrentLevel;
+//	TObjectPtr<ULevelStreaming> LoadingLevel;
+//#endif
 	FName CurrentLevelName;
 	FMapRequestInformation MapToLoadInformation;
 	FTimerHandle LoadingLevelTimerHandle;
@@ -42,11 +54,7 @@ public:
 	float FadeDuration = 0.1f;
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Default")
 	float HeldTimerDuration;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Default")
-	TObjectPtr<APlayerController> PlayerController;
-
-
+	
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Default")
 	FLinearColor FadeColor;
@@ -95,8 +103,11 @@ private:
 	void NextMapLoaded();
 
 	UObject* GetLevelScriptBlueprint(FName LevelName);
-	UObject* GetLevelScriptBlueprint(TObjectPtr<ULevelStreaming> LevelName);
-
+//#if ENGINE_COMPATIBILITY_NOOBJECTPTR
+	UObject* GetLevelScriptBlueprint(ULevelStreaming* Level);
+//#else
+//	TObjectPtr<UObject>  GetLevelScriptBlueprint(TObjectPtr<ULevelStreaming> Level);
+//#endif
 
 protected:
 	// Called when the game starts

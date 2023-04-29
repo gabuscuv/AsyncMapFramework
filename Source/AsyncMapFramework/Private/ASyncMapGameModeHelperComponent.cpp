@@ -187,7 +187,11 @@ UObject *UASyncMapGameModeHelperComponent::GetLevelScriptBlueprint(FName levelNa
 	return GetLevelScriptBlueprint(UGameplayStatics::GetStreamingLevel(GetOwner(), levelName));
 }
 
-UObject *UASyncMapGameModeHelperComponent::GetLevelScriptBlueprint(TObjectPtr<ULevelStreaming> level)
+//#if ENGINE_COMPATIBILITY_NOOBJECTPTR
+UObject* UASyncMapGameModeHelperComponent::GetLevelScriptBlueprint(ULevelStreaming* level)
+//#else
+//TObjectPtr<UObject> UASyncMapGameModeHelperComponent::GetLevelScriptBlueprint(TObjectPtr<ULevelStreaming> LevelName);
+//#endif
 {
 	return reinterpret_cast<UObject *>(level->GetLoadedLevel()->GetLevelScriptBlueprint(false));
 }

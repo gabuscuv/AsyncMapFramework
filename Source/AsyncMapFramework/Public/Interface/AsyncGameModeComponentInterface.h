@@ -2,10 +2,9 @@
 
 #pragma once
 
-enum class ELoadingMode : uint8;
-
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "Enums/LoadingMode.h"
 #include "AsyncGameModeComponentInterface.generated.h"
 
 // This class does not need to be modified.

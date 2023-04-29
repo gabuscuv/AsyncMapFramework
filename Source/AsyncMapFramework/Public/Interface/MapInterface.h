@@ -2,12 +2,11 @@
 
 #pragma once
 
-enum class ELoadingMode : uint8;
-
-
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "Enums/LoadingMode.h"
 #include "MapInterface.generated.h"
+
 /** Please add a class description */
 UINTERFACE(MinimalAPI)
 class UMapInterface : public UInterface

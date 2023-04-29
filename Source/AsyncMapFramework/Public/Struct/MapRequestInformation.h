@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 
-enum class ELoadingMode : uint8;
+#include "Enums/LoadingMode.h"
 
 //USTRUCT(BlueprintType)
 struct FMapRequestInformation
