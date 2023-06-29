@@ -23,6 +23,6 @@
 	],
 	"Plugins":
 	[
-		{"Name":"CustomIOMiscStuffPlugin", "Enabled": false}
+		{"Name":"CustomIOMiscStuffPlugin", "Enabled": true}
 	]
 }

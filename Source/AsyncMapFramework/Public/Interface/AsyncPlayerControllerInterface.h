@@ -2,8 +2,12 @@
 
 #pragma once
 
+//enum class EEvents : uint8;
+
+
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "Enums/EEvents.h"
 #include "AsyncPlayerControllerInterface.generated.h"
 
 // This class does not need to be modified.
@@ -30,6 +34,8 @@ public:
 	bool IsMenuPawn();
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AsyncMapHelper")
 	bool ReSpawn(bool MenuPawn);
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AsyncMapHelper")
+	void LoadSaveData(FTransform LastLoadedMap, TMap<EEvents,bool> & EventsEnabled);
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AsyncMapHelper")
 	void SaveData(FName LastLoadedMap, ELoadingMode LoadingMode);
 };

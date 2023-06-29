@@ -4,8 +4,10 @@
 
 enum class ELoadingMode : uint8;
 
+
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "Structs/SaveDataStruct.h"
 #include "AsyncGameModeComponentInterface.generated.h"
 
 // This class does not need to be modified.
@@ -29,7 +31,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AsyncMapHelper")
 	void LoadMap(FName LevelName, ELoadingMode loadingMode, bool IgnoreFade);
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AsyncMapHelper")
-    bool LoadSaveData();
+    bool LoadSaveData(FSaveData savedata);
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AsyncMapHelper")
 	void RemoveLoadingMap(bool LazyLoad, ELoadingMode loadingMode, bool IgnoreFade);
 };

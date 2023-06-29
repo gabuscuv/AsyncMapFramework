@@ -10,6 +10,7 @@ public class AsyncMapFramework : ModuleRules
 		
 		PublicIncludePaths.AddRange(
 			new string[] {
+				"CustomIOMiscStuffPlugin"
 				// ... add public include paths required here ...
 			}
 			);
@@ -26,6 +27,7 @@ public class AsyncMapFramework : ModuleRules
 			new string[]
 			{
 				"Core",
+				"CustomIOMiscStuffPlugin"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
