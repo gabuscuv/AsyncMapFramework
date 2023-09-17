@@ -75,8 +75,9 @@ public:
 	//	UFUNCTION(BlueprintCallable)
 	//	void LoadFMODSettings();
 	
-	UFUNCTION(BlueprintCallable, Category = "AsyncMapHelper")
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AsyncMapHelper")
 	void OnSwapPlayerControllers(APlayerController *oldPlayer, APlayerController *newPlayer);
+	virtual void OnSwapPlayerControllers_Implementation(APlayerController *oldPlayer, APlayerController *newPlayer) override;
 
 private:
 	bool IsCorrectThePawnMode(APlayerController *self2, ELoadingMode NewParam, FName NewParam1);

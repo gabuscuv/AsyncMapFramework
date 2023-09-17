@@ -34,4 +34,6 @@ public:
     bool LoadSaveData(FSaveData savedata);
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AsyncMapHelper")
 	void RemoveLoadingMap(bool LazyLoad, ELoadingMode loadingMode, bool IgnoreFade);
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AsyncMapHelper")
+	void OnSwapPlayerControllers(APlayerController *oldPlayer, APlayerController *newPlayer);
 };

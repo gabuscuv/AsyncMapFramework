@@ -33,7 +33,7 @@ void UASyncMapGameModeHelperComponent::BeginPlay()
 }
 
 // Uhhh, We are making a Component... Maybe We could bind this function to the event in the *ACTUAL* PlayerController
-void UASyncMapGameModeHelperComponent::OnSwapPlayerControllers(APlayerController *oldPlayer, APlayerController *newPlayer)
+void UASyncMapGameModeHelperComponent::OnSwapPlayerControllers_Implementation(APlayerController *oldPlayer, APlayerController *newPlayer)
 {
 	PlayerController = newPlayer;
 }
