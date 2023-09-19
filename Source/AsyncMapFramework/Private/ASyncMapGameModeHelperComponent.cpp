@@ -162,7 +162,7 @@ void UASyncMapGameModeHelperComponent::RemoveLoadingMap_Implementation(bool lazy
 
 bool UASyncMapGameModeHelperComponent::IsCorrectThePawnMode(APlayerController *playerController, ELoadingMode NewParam, FName levelName)
 {
-	return ((IAsyncPlayerControllerInterface::Execute_IsMenuPawn(playerController) && levelName == "MainMenu") || levelName == LoadingLevelName);
+	return ( ! (IAsyncPlayerControllerInterface::Execute_IsMenuPawn(playerController) && levelName == "MainMenu") || levelName == LoadingLevelName);
 }
 
 void UASyncMapGameModeHelperComponent::StartCameraFade()
