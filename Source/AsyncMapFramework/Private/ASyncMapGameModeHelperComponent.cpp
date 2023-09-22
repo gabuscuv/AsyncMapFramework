@@ -189,5 +189,5 @@ UObject *UASyncMapGameModeHelperComponent::GetLevelScriptBlueprint(FName levelNa
 
 UObject *UASyncMapGameModeHelperComponent::GetLevelScriptBlueprint(TObjectPtr<ULevelStreaming> level)
 {
-	return reinterpret_cast<UObject *>(level->GetLoadedLevel()->GetLevelScriptBlueprint(false));
+	return reinterpret_cast<UObject *>(level->GetLevelScriptActor());
 }
