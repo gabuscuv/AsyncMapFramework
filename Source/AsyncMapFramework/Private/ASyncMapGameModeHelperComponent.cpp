@@ -122,6 +122,8 @@ void UASyncMapGameModeHelperComponent::RemoveLoadingMap_Implementation(bool lazy
 		StartCameraFade();
 	}
 
+	auto levelScript = GetLevelScriptBlueprint(CurrentLevelName);
+
 	if (lazyLoad && !CurrentLevel->IsLevelVisible())
 	{
 		CurrentLevel->SetShouldBeVisible(true);
@@ -130,9 +132,9 @@ void UASyncMapGameModeHelperComponent::RemoveLoadingMap_Implementation(bool lazy
 		return;
 	}
 
-	if (GetLevelScriptBlueprint(CurrentLevelName)->Implements<UMapInterface>())
+	if (levelScript && levelScript->Implements<UMapInterface>())
 	{
-		IMapInterface::Execute_SetPrologueMode(GetLevelScriptBlueprint(CurrentLevelName), MapToLoadInformation.loadingMode);
+		IMapInterface::Execute_SetPrologueMode(levelScript, MapToLoadInformation.loadingMode);
 	}
 
 	UGameplayStatics::UnloadStreamLevel(GetOwner(), LoadingLevelName, FLatentActionInfo(), false);
