@@ -36,6 +36,7 @@ void UASyncMapGameModeHelperComponent::BeginPlay()
 void UASyncMapGameModeHelperComponent::OnSwapPlayerControllers_Implementation(APlayerController *oldPlayer, APlayerController *newPlayer)
 {
 	PlayerController = newPlayer;
+	PlayerController->PlayerCameraManager->SetManualCameraFade(1, FadeColor, false);
 }
 
 void UASyncMapGameModeHelperComponent::LoadMap_Implementation(FName levelName, ELoadingMode loadingMode, bool IgnoreFade)
