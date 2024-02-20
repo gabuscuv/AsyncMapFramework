@@ -39,9 +39,9 @@ public:
 
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Default", meta = (UIMin = "0", UIMax = "2", ClampMin = "0", ClampMax = "2"))
-	float FadeDuration = 0.1f;
+	float FadeDuration = 0.5f;
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Default")
-	float HeldTimerDuration;
+	float HeldTimerDuration = 0.1f;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Default")
 	TObjectPtr<APlayerController> PlayerController;
