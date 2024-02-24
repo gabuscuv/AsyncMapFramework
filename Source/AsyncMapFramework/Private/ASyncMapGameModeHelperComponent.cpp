@@ -13,6 +13,8 @@
 #include "Interface/MapInterface.h"
 #include "Interface/AsyncPlayerControllerInterface.h"
 
+#include "AsyncPlayerControllerComponent.h"
+
 // Sets default values for this component's properties
 UASyncMapGameModeHelperComponent::UASyncMapGameModeHelperComponent()
 {
@@ -35,8 +37,7 @@ void UASyncMapGameModeHelperComponent::BeginPlay()
 // Uhhh, We are making a Component... Maybe We could bind this function to the event in the *ACTUAL* PlayerController
 void UASyncMapGameModeHelperComponent::OnSwapPlayerControllers_Implementation(APlayerController *oldPlayer, APlayerController *newPlayer)
 {
-	PlayerController = newPlayer;
-	PlayerController->PlayerCameraManager->SetManualCameraFade(1, FadeColor, false);
+	PlayerController = newPlayer->GetComponentByClass<UAsyncPlayerControllerComponent>();
 }
 
 void UASyncMapGameModeHelperComponent::LoadMap_Implementation(FName levelName, ELoadingMode loadingMode, bool IgnoreFade)
@@ -60,7 +61,7 @@ void UASyncMapGameModeHelperComponent::LoadMap_Implementation(FName levelName, E
 	}
 	if (!IgnoreFade)
 	{
-		StartCameraFade();
+		TimeToFadding = IAsyncPlayerControllerInterface::Execute_StartCameraFade(PlayerController);
 	}
 
 	isLoading = true;
@@ -90,14 +91,14 @@ void UASyncMapGameModeHelperComponent::LoadMap_Implementation_TimeElapsed()
 
 	UGameplayStatics::LoadStreamLevel(GetOwner(), MapToLoadInformation.levelName, ! (MapToLoadInformation.loadingMode == ELoadingMode::Prologue), false, FLatentActionInfo(0 /*No Idea*/, FCString::Atoi(*FGuid::NewGuid().ToString(EGuidFormats::Digits)), *FString("NextMapLoaded"), this));
 
-	StopCameraFade();
+	TimeToFadding = IAsyncPlayerControllerInterface::Execute_StopCameraFade(PlayerController);
 }
 
 void UASyncMapGameModeHelperComponent::LoadingMapLoaded()
 {
 	// Teleport the Player
 	IAsyncPlayerControllerInterface::Execute_TeleportToPlayerStart(PlayerController, LoadingLevelName);
-	StopCameraFade();
+	TimeToFadding = IAsyncPlayerControllerInterface::Execute_StopCameraFade(PlayerController);
 
 	LoadMap_Implementation_TimeElapsed();
 }
@@ -120,7 +121,7 @@ void UASyncMapGameModeHelperComponent::RemoveLoadingMap_Implementation(bool lazy
 {
 	if (!ignoreFade)
 	{
-		StartCameraFade();
+		TimeToFadding =IAsyncPlayerControllerInterface::Execute_StartCameraFade(PlayerController);
 	}
 
 	auto levelScript = GetLevelScriptBlueprint(CurrentLevelName);
@@ -157,32 +158,15 @@ void UASyncMapGameModeHelperComponent::RemoveLoadingMap_Implementation(bool lazy
 
 	if (!ignoreFade)
 	{
-		StopCameraFade();
+		TimeToFadding = IAsyncPlayerControllerInterface::Execute_StopCameraFade(PlayerController);
 	}
 	isLoading = false;
 	return;
 }
 
-bool UASyncMapGameModeHelperComponent::IsCorrectThePawnMode(APlayerController *playerController, ELoadingMode NewParam, FName levelName)
+bool UASyncMapGameModeHelperComponent::IsCorrectThePawnMode(UObject *playerController, ELoadingMode NewParam, FName levelName)
 {
 	return ( ! (IAsyncPlayerControllerInterface::Execute_IsMenuPawn(playerController) && levelName == "MainMenu") || levelName == LoadingLevelName);
-}
-
-void UASyncMapGameModeHelperComponent::StartCameraFade()
-{
-	TimeToFadding = GetTimeFadding();
-	PlayerController->PlayerCameraManager->StartCameraFade(0.0f, 1.0f, FadeDuration, FadeColor, false, true);
-}
-
-void UASyncMapGameModeHelperComponent::StopCameraFade()
-{
-	TimeToFadding = GetTimeFadding();
-	PlayerController->PlayerCameraManager->StartCameraFade(1.0f, 0.0f, FadeDuration, FadeColor, false, true);
-}
-
-FDateTime UASyncMapGameModeHelperComponent::GetTimeFadding()
-{
-	return FDateTime::Now() + FTimespan(FadeDuration);
 };
 
 UObject *UASyncMapGameModeHelperComponent::GetLevelScriptBlueprint(FName levelName)

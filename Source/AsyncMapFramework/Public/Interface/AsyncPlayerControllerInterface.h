@@ -27,6 +27,12 @@ class ASYNCMAPFRAMEWORK_API IAsyncPlayerControllerInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AsyncMapHelper")
+	FDateTime StartCameraFade();
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AsyncMapHelper")
+	FDateTime StopCameraFade();
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AsyncMapHelper")
+	APlayerCameraManager* GetOwnerPlayerCameraManager();
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AsyncMapHelper")
 	void TeleportToPlayerStart(FName LevelName);
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AsyncMapHelper")
 	void TeleportToLastTransform();

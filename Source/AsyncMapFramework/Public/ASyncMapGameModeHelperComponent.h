@@ -36,22 +36,12 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Default")
 	FName LoadingLevelName = "Loading";
-
 	/** Please add a variable description */
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Default", meta = (UIMin = "0", UIMax = "2", ClampMin = "0", ClampMax = "2"))
-	float FadeDuration = 0.5f;
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Default")
 	float HeldTimerDuration = 0.1f;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Default")
-	TObjectPtr<APlayerController> PlayerController;
-
-
-	/** Please add a variable description */
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Default")
-	FLinearColor FadeColor;
-
-	/** Please add a variable description */
+	TObjectPtr<UObject> PlayerController;
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Default")
 	FDateTime TimeToFadding;
 
@@ -80,15 +70,10 @@ public:
 	virtual void OnSwapPlayerControllers_Implementation(APlayerController *oldPlayer, APlayerController *newPlayer) override;
 
 private:
-	bool IsCorrectThePawnMode(APlayerController *self2, ELoadingMode NewParam, FName NewParam1);
-
-	void StartCameraFade();
-
-	void StopCameraFade();
+	bool IsCorrectThePawnMode(UObject *self2, ELoadingMode NewParam, FName NewParam1);
 
 	void LoadMap_Implementation_TimeElapsed();
 
-	FDateTime GetTimeFadding();
 	
 	UFUNCTION()
 	void LoadingMapLoaded();
